@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {{ super() }}
+    <form class="pure-form index-url-form js-index-url-form" action="/get_data" method="post">
+        <label for="stop_name">
+            Маршруты для остановки
+        </label>
+        <select name="stop_name">
+            {% for item in all_stops_list %}
+                <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="pure-button pure-button-primary">
+            <span class="js-index-url-form__text-default">Получить данные</span>
+            <div class="index-url-form__loader js-index-url-form__text-loading hidden"></div>
+        </button>
+    </form>
+
+    <div class="error-data hidden">
+        <h3>Произошла ошибка</h3>
+        <div></div>
+    </div>
+
+    <div class="response js-response-app"></div>
+{% endblock %}

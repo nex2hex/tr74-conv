@@ -1,0 +1,93 @@
+.content {
+    max-width: 980px;
+    margin: 20px auto;
+}
+
+.choices * {
+    box-sizing: border-box;
+}
+
+.index-url-form {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.index-url-form select[name="stop_name"],
+.index-url-form .choices {
+    margin: 0;
+    flex-grow: 2;
+    min-width: 200px;
+}
+
+.index-url-form .pure-button-primary {
+    width: 200px;
+    text-align: center;
+}
+
+.index-url-form__loader {
+    margin: 0 auto;
+    width: 10px;
+    height: 10px;
+    padding: 4px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: white;
+    --_m: 
+      conic-gradient(#0000 10%,#000),
+      linear-gradient(#000 0 0) content-box;
+    -webkit-mask: var(--_m);
+            mask: var(--_m);
+    -webkit-mask-composite: source-out;
+            mask-composite: subtract;
+    animation: l3 1s infinite linear;
+}
+
+@keyframes l3 {
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+.error-data div {
+    overflow-x: auto;
+    padding: 0.5em;
+    color: rgb(0, 0, 0);
+    background: rgb(248, 248, 255);
+    white-space: pre-wrap;
+}
+
+.response__item__title {
+    margin: 20px 0 10px 0;
+    display: flex;
+    align-items: center;
+}
+
+.response__item__title input {
+    margin-right: 10px;
+}
+
+.response__item__title h3 {
+    margin: 0;
+}
+
+.response__item__textarea {
+    position: relative;
+}
+
+.response__item__textarea button {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.response__item__textarea textarea {
+    width: 100%;
+    min-height: 200px;
+    font-size: 12px;
+}

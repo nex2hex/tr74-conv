@@ -9,7 +9,7 @@ build:
 		-it conv
 
 build_prod:
-	docker rm conv_prod
+	docker rm conv_prod || true
 	docker build . -t conv_prod -f Dockerfile_prod
 
 remove:

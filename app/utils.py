@@ -81,24 +81,13 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
             "routeNumber": row["RouteNum"],
             "color": TRANSPORT_TYPE_COLORS[row["Transport"]],
             "direction": row["RouteName"].rsplit(" - ")[-1],
-            "description": ", ".join(row["RouteStopsList"]),
+            "description": ", ".join([item for item in row["RouteStopsList"] if len(item) > 1]),
             "shiftMinutes": 0,
         },
         "commentBottom": [],
     }
 
     if not row["TimeShiftOnRouteStart"].startswith("-1,"):
-        column_headers = []
-        if has_working_days:
-            column_headers.append("Рабочие дни")
-        if has_sunday or has_saturday:
-            if has_sunday or has_saturday:
-                column_headers.append("Выходные")
-            elif has_sunday:
-                column_headers.append("Суббота")
-            elif has_saturday:
-                column_headers.append("Воскресенье")
-
         times_by_hour_working_days = {}
         times_by_hour_weekend = {}
 
@@ -106,14 +95,14 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
         stop_shift_in_minutes = 0
         stop_shift_in_minutes = sum(map(int, row["TimeShiftStops"][: stop_index + 1]))
         acc = None
-        current_dict = times_by_hour_working_days
+        current_dict = times_by_hour_weekend
 
         for item in row["TimeShiftOnRouteStart"].split(","):
             item = item.replace("+", "")
             item = int(item)
 
             if item < 0:
-                current_dict = times_by_hour_weekend
+                current_dict = times_by_hour_working_days
 
             if acc is None:
                 acc = item
@@ -133,18 +122,29 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
                 if "" not in v:
                     v.append("")
 
-        if (has_sunday or has_saturday) and not times_by_hour_weekend:
-            times_by_hour_weekend = times_by_hour_working_days
-
-        columns = []
-        if times_by_hour_working_days:
-            columns.append(
-                {
-                    "timesByHour": times_by_hour_working_days,
-                }
+        rows = []
+        column_headers = []
+        if times_by_hour_working_days and times_by_hour_weekend:
+            column_headers.append("Рабочие дни")
+            if has_sunday and has_saturday:
+                column_headers.append("Выходные")
+            elif has_sunday:
+                column_headers.append("Суббота")
+            elif has_saturday:
+                column_headers.append("Воскресенье")
+            rows.extend(
+                [
+                    {
+                        "timesByHour": times_by_hour_working_days,
+                    },
+                    {
+                        "timesByHour": times_by_hour_weekend,
+                    },
+                ]
             )
-        if times_by_hour_weekend:
-            columns.append(
+        else:
+            column_headers.append("Еденевно")
+            rows.append(
                 {
                     "timesByHour": times_by_hour_weekend,
                 }
@@ -158,7 +158,7 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
                     "rows": [
                         {
                             "name": "Рейсы",
-                            "columns": columns,
+                            "columns": rows,
                         }
                     ],
                 },

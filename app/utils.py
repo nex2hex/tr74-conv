@@ -1,3 +1,4 @@
+import pickle
 import time
 import typing as t
 from functools import lru_cache
@@ -6,17 +7,29 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 
-from .settings import ROUTES_LINK, STOPS_LINK, TRANSPORT_TYPE_COLORS, TRANSPORT_TYPE_NAMES
+from .settings import (
+    ROUTES_DATAFRAME_CACHE,
+    ROUTES_FILE,
+    ROUTES_LINK,
+    STOPS_FILE,
+    STOPS_LINK,
+    TRANSPORT_TYPE_COLORS,
+    TRANSPORT_TYPE_NAMES,
+)
 
 
-def get_ttl_hash(seconds=3600 * 24) -> int:
+def get_ttl_hash(seconds=3600) -> int:
     """Return the same value withing `seconds` time period"""
     return round(time.time() / seconds)
 
 
-@lru_cache(maxsize=1)
-def _get_routes_dataframe(ttl_hash: int) -> pd.DataFrame:
-    df_routes = pd.read_csv(ROUTES_LINK, sep=";")
+@lru_cache()
+def _get_routes_dataframe(ttl_hash: int, cached=True) -> pd.DataFrame:
+    if cached and ROUTES_DATAFRAME_CACHE.exists():
+        return pickle.loads(ROUTES_DATAFRAME_CACHE.read_bytes())
+
+    source = ROUTES_FILE if ROUTES_FILE.exists() else ROUTES_LINK
+    df_routes = pd.read_csv(source, sep=";")
     df_routes["TimeShift"] = df_routes["RouteNum"]
 
     mask_exclude = df_routes["TimeShift"].notnull() & df_routes["TimeShift"].str.contains(",")
@@ -29,7 +42,8 @@ def _get_routes_dataframe(ttl_hash: int) -> pd.DataFrame:
     df_routes.ffill(inplace=True)
     df_routes.drop_duplicates(inplace=True)
 
-    df_stops = pd.read_csv(STOPS_LINK, sep=";")
+    source = STOPS_FILE if STOPS_FILE.exists() else STOPS_LINK
+    df_stops = pd.read_csv(source, sep=";")
 
     df_stops["Lat"] = df_stops["Lat"] / 100000
     df_stops["Lng"] = df_stops["Lng"] / 100000
@@ -61,6 +75,10 @@ def _get_routes_dataframe(ttl_hash: int) -> pd.DataFrame:
     df_routes["TimeShiftStops"] = df_routes["temp"].apply(time_ships_stops)
 
     df_routes.drop(labels=["temp"], axis=1, inplace=True)
+
+    if cached and ROUTES_DATAFRAME_CACHE.exists():
+        ROUTES_DATAFRAME_CACHE.unlink(missing_ok=True)
+        return pickle.dump(df_routes, ROUTES_DATAFRAME_CACHE)
 
     return df_routes
 

@@ -7,7 +7,8 @@ Use `isort . && black .` command for code formatting.
 
 ## Upload image to server and run it
 on dev:
-1. `make build_prod`
+1. Run `make shell` to enter the dev container, run `python make_cache.py` to update local cache, then exit.
+2. `make build_prod`
 2. `docker save conv_prod | ssh -C user@example.com docker load`
 
 on prod:

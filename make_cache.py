@@ -26,5 +26,5 @@ if __name__ == "__main__":
     with closing(asyncio.new_event_loop()) as loop:
         result = loop.run_until_complete(download_remote_files())
 
-    r = _get_routes_dataframe(ttl_hash=0, cached=False)
+    r = _get_routes_dataframe(ttl_hash=0, use_cache=False)
     ROUTES_DATAFRAME_CACHE.write_bytes(pickle.dumps(r))

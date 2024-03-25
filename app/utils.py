@@ -24,8 +24,8 @@ def get_ttl_hash(seconds=3600) -> int:
 
 
 @lru_cache()
-def _get_routes_dataframe(ttl_hash: int, cached=True) -> pd.DataFrame:
-    if cached and ROUTES_DATAFRAME_CACHE.exists():
+def _get_routes_dataframe(ttl_hash: int, use_cache=True) -> pd.DataFrame:
+    if use_cache and ROUTES_DATAFRAME_CACHE.exists():
         return pickle.loads(ROUTES_DATAFRAME_CACHE.read_bytes())
 
     source = ROUTES_FILE if ROUTES_FILE.exists() else ROUTES_LINK
@@ -75,10 +75,6 @@ def _get_routes_dataframe(ttl_hash: int, cached=True) -> pd.DataFrame:
     df_routes["TimeShiftStops"] = df_routes["temp"].apply(time_ships_stops)
 
     df_routes.drop(labels=["temp"], axis=1, inplace=True)
-
-    if cached and ROUTES_DATAFRAME_CACHE.exists():
-        ROUTES_DATAFRAME_CACHE.unlink(missing_ok=True)
-        return pickle.dump(df_routes, ROUTES_DATAFRAME_CACHE)
 
     return df_routes
 

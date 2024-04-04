@@ -89,13 +89,22 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
     has_saturday = "7" in row["Weekdays"]
     has_low_floor = "z" in row["Weekdays"]
 
+    stops_for_description = []
+    for item in row["RouteStopsList"]:
+        if len(item) <= 1 or item in stops_for_description:
+            continue
+        stops_for_description.append(item)
+
+    stop_index = stops_for_description.index(stop_name) + 1
+    stops_for_description = stops_for_description[stop_index:] or stops_for_description
+
     payload = {
         "head": {
             "type": TRANSPORT_TYPE_NAMES[row["Transport"]],
             "routeNumber": row["RouteNum"],
             "color": TRANSPORT_TYPE_COLORS[row["Transport"]],
             "direction": row["RouteName"].rsplit(" - ")[-1],
-            "description": ", ".join([item for item in row["RouteStopsList"] if len(item) > 1]),
+            "description": ", ".join(stops_for_description),
             "shiftMinutes": 0,
         },
         "commentBottom": [],

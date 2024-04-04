@@ -158,9 +158,15 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
             )
         else:
             column_headers.append("Еденевно")
+            column_headers.append("")
             rows.append(
                 {
                     "timesByHour": times_by_hour_weekend,
+                }
+            )
+            rows.append(
+                {
+                    "timesByHour": {},
                 }
             )
 

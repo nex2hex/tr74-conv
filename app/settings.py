@@ -18,11 +18,13 @@ TRANSPORT_TYPE_NAMES = {
     "minibus": "Маршрутное такси",
     "tram": "Трамвай",
     "trol": "Троллейбус",
+    "seasonalbus": "Автобус",
 }
 
 TRANSPORT_TYPE_COLORS = {
-    "bus": [0, 89, 100, 0],
-    "minibus": [0, 89, 100, 0],
+    "bus": [85, 22, 100, 13],
+    "minibus": [85, 22, 100, 13],
     "tram": [0, 89, 100, 0],
     "trol": [0, 89, 100, 0],
+    "seasonalbus": [85, 22, 100, 13],
 }

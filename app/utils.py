@@ -1,4 +1,6 @@
+import datetime
 import pickle
+import re
 import time
 import typing as t
 from functools import lru_cache
@@ -21,6 +23,19 @@ from .settings import (
 def get_ttl_hash(seconds=3600) -> int:
     """Return the same value withing `seconds` time period"""
     return round(time.time() / seconds)
+
+
+def translit(text: str) -> str:
+    symbols = (
+        "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ",
+        "abvgdeejzijklmnoprstufhzcss_y_euaABVGDEEJZIJKLMNOPRSTUFHZCSS_Y_EUA",
+    )
+
+    tr = {ord(a): ord(b) for a, b in zip(*symbols)}
+
+    text_tr = text.translate(tr)
+    text_tr = re.sub(r"[\s\_]+", "_", text_tr)
+    return text_tr
 
 
 @lru_cache()
@@ -97,6 +112,11 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
 
     stop_index = stops_for_description.index(stop_name) + 1
     stops_for_description = stops_for_description[stop_index:] or stops_for_description
+    stop_name_last = stops_for_description[-1]
+
+    pdf_from = translit(stop_name).lower()
+    pdf_to = translit(stop_name_last).lower()
+    pdf_now = datetime.date.today().strftime("%b-%d").lower()
 
     payload = {
         "head": {
@@ -106,6 +126,7 @@ def get_json_payload(stop_name: str, row: pd.Series) -> dict[str, t.Any]:
             "direction": row["RouteName"].rsplit(" - ")[-1],
             "description": ", ".join(stops_for_description),
             "shiftMinutes": 0,
+            "pdfFilename": f"{row['Transport']}-{row['RouteNum']}-from-{pdf_from}-to-{pdf_to}-{pdf_now}",
         },
         "commentBottom": [],
     }

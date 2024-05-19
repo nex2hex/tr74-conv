@@ -63,21 +63,33 @@ function installIndexFormHandlers() {
             body: fd,
         });
 
-        const data = await response.json();
-
-        if (data.detail) {
+        if (!response.ok) {
             errorEl.classList.remove("hidden");
-            errorEl.querySelector("div").innerText = JSON.stringify(data, undefined, 2)
-        }
+            errorEl.querySelector("div").innerText = response.statusText;
+        } else {
+            const data = await response.json();
 
-        renderResponse(data.data);
+            if (data.detail) {
+                errorEl.classList.remove("hidden");
+                errorEl.querySelector("div").innerText = JSON.stringify(data, undefined, 2);
+            }
+
+            renderResponse(data.data);
+        }
 
         enableForm();
     });
 }
 
 function renderResponse(data) {
-    html = '';
+    let appEl = document.querySelector(".js-response-app");
+    appEl.innerHTML = "";
+
+    if (!data) {
+        return;
+    }
+
+    let html = "";
     data.forEach((row) => {
         html += `
             <div class="response__item">
@@ -92,7 +104,7 @@ function renderResponse(data) {
             </div>    
         `
     });
-    document.querySelector(".js-response-app").innerHTML = html;
+    appEl.innerHTML = html;
 }
 
 function installResponseHandlers() {

@@ -12,7 +12,9 @@ function installIndexFormHandlers() {
     }
 
     formEl.querySelectorAll("select").forEach((e) => {
-        const choices = new Choices(e);
+        const choices = new Choices(e, {
+            searchResultLimit: 10,
+        });
     });
 
     const enableForm = () => {
